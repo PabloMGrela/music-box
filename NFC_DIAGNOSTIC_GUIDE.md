@@ -1,113 +1,113 @@
-# 🔍 Guía de Diagnóstico del PN532 NFC Reader
+# 🔍 PN532 NFC Reader Diagnostic Guide
 
-## El programa de test ya está cargado en tu ESP32
+## The test program is already loaded on your ESP32
 
-### ¿Qué hace el programa de test?
+### What does the test program do?
 
-El programa ejecuta 4 pruebas automáticas:
+The program runs 4 automatic tests:
 
-1. ✅ **Configuración de Pines** - Verifica que los pines están correctos
-2. ✅ **Inicialización** - Intenta comunicarse con el PN532
-3. ✅ **Versión de Firmware** - Lee la versión del chip PN532
-4. ✅ **Configuración SAM** - Configura el módulo para leer tags
+1. ✅ **Pin Configuration** - Verifies pins are correct
+2. ✅ **Initialization** - Attempts to communicate with PN532
+3. ✅ **Firmware Version** - Reads PN532 chip version
+4. ✅ **SAM Configuration** - Configures module to read tags
 
-### 📺 Para ver los resultados:
+### 📺 To view results:
 
-#### Opción 1: Usar el script de test
+#### Option 1: Use the test script
 ```bash
 ./test_nfc.sh
 ```
 
-#### Opción 2: Monitor manual
+#### Option 2: Manual monitor
 ```bash
 ~/.platformio/penv/bin/platformio device monitor -e nfc_test
 ```
 
-Luego presiona el botón **RESET** (o **EN**) en tu ESP32.
+Then press the **RESET** (or **EN**) button on your ESP32.
 
 ---
 
-## 🔧 Si el PN532 NO se detecta
+## 🔧 If PN532 is NOT detected
 
-Verás este mensaje:
+You'll see this message:
 ```
 ✗ FAILED: Didn't find PN532 board
 ```
 
-### Pasos de Verificación:
+### Verification Steps:
 
-#### 1. **Verificar Modo SPI del PN532**
-La mayoría de módulos PN532 tienen **interruptores DIP** o **jumpers**:
+#### 1. **Verify PN532 SPI Mode**
+Most PN532 modules have **DIP switches** or **jumpers**:
 
-**Configuración correcta para SPI:**
-- SW1: **ON** (o I0 = 0)
-- SW2: **OFF** (o I1 = 1)
+**Correct configuration for SPI:**
+- SW1: **ON** (or I0 = 0)
+- SW2: **OFF** (or I1 = 1)
 
-Otros modos (incorrectos):
+Other modes (incorrect):
 - HSU/UART: SW1=OFF, SW2=OFF
 - I2C: SW1=OFF, SW2=ON
 
-#### 2. **Verificar Conexiones Físicas**
+#### 2. **Verify Physical Connections**
 
-| ESP32 Pin | PN532 Pin | Cable/Función |
-|-----------|-----------|---------------|
-| 3.3V      | VCC       | Alimentación (rojo) |
-| GND       | GND       | Tierra (negro) |
-| GPIO14    | SCK       | Clock (amarillo/blanco) |
-| GPIO12    | MISO      | Datos IN (verde) |
-| GPIO27    | MOSI      | Datos OUT (azul) |
-| GPIO15    | SS/CS     | Chip Select (morado) |
+| ESP32 Pin | PN532 Pin | Cable/Function |
+|-----------|-----------|----------------|
+| 3.3V      | VCC       | Power (red) |
+| GND       | GND       | Ground (black) |
+| GPIO14    | SCK       | Clock (yellow/white) |
+| GPIO12    | MISO      | Data IN (green) |
+| GPIO27    | MOSI      | Data OUT (blue) |
+| GPIO15    | SS/CS     | Chip Select (purple) |
 
-**Notas importantes:**
-- ⚠️ **NO conectar a 5V** - El PN532 usa 3.3V
-- Cables cortos (<10cm) funcionan mejor
-- MISO debe tener pull-up (la mayoría de módulos lo incluyen)
+**Important notes:**
+- ⚠️ **DO NOT connect to 5V** - PN532 uses 3.3V
+- Short cables (<10cm) work better
+- MISO should have pull-up (most modules include it)
 
-#### 3. **Verificar Alimentación**
+#### 3. **Verify Power Supply**
 
-Con un multímetro:
-- Medir entre VCC y GND del PN532
-- Debe leer **3.3V** (entre 3.2V y 3.4V está OK)
-- Si es 0V: problema de conexión o alimentación ESP32
-- Si es 5V: ⚠️ **DESCONECTAR INMEDIATAMENTE** - Conectado a 5V
+With a multimeter:
+- Measure between VCC and GND of PN532
+- Should read **3.3V** (between 3.2V and 3.4V is OK)
+- If 0V: connection problem or ESP32 power issue
+- If 5V: ⚠️ **DISCONNECT IMMEDIATELY** - Connected to 5V
 
-**LED del PN532:**
-- Debe estar encendido (rojo o verde según modelo)
-- Si no enciende: problema de alimentación
+**PN532 LED:**
+- Should be on (red or green depending on model)
+- If not lit: power supply problem
 
-#### 4. **Verificar Soldaduras (si es módulo sin pines)**
+#### 4. **Check Soldering (if module without pins)**
 
-Si soldaste tú mismo los pines:
-- Revisar cada pin con lupa
-- Buscar soldaduras frías (opacas, porosas)
-- Verificar continuidad con multímetro
-- Verificar que no hay cortocircuitos entre pines
+If you soldered the pins yourself:
+- Check each pin with magnifier
+- Look for cold solder joints (dull, porous)
+- Verify continuity with multimeter
+- Check for no short circuits between pins
 
-#### 5. **Probar con Cables Más Cortos**
+#### 5. **Try Shorter Cables**
 
-SPI puede ser sensible a cables largos:
-- Usar cables Dupont de <10cm
-- Mejor aún: soldar directamente al ESP32
-- Mantener cables alejados de fuentes de ruido
+SPI can be sensitive to long cables:
+- Use Dupont cables <10cm
+- Even better: solder directly to ESP32
+- Keep cables away from noise sources
 
-#### 6. **Verificar GPIO15 (Strapping Pin)**
+#### 6. **Check GPIO15 (Strapping Pin)**
 
-GPIO15 es un pin especial del ESP32:
-- Debe estar HIGH durante el boot
-- Si tienes problemas de arranque, prueba otro pin para CS:
-  - GPIO5 es una buena alternativa
-  - GPIO4 también funciona
+GPIO15 is a special ESP32 pin:
+- Must be HIGH during boot
+- If you have boot problems, try another pin for CS:
+  - GPIO5 is a good alternative
+  - GPIO4 also works
   
-Para cambiar el pin CS:
-1. Edita `include/config.h`
-2. Cambia `#define NFC_SS 15` por `#define NFC_SS 5`
-3. Reconecta el cable del PN532 CS a GPIO5
+To change CS pin:
+1. Edit `include/config.h`
+2. Change `#define NFC_SS 15` to `#define NFC_SS 5`
+3. Reconnect PN532 CS cable to GPIO5
 
 ---
 
-## ✅ Si el PN532 SE DETECTA
+## ✅ If PN532 IS DETECTED
 
-Verás algo como:
+You'll see something like:
 ```
 ✓ PN532 Found!
 Chip: PN532
@@ -117,10 +117,10 @@ Now scanning for NFC tags...
 Place an NFC tag near the reader
 ```
 
-### Prueba de Tags NFC:
+### NFC Tag Test:
 
-1. **Acerca un tag NFC** (tarjeta, llavero, phone con NFC)
-2. Deberías ver:
+1. **Place an NFC tag near** (card, keychain, NFC phone)
+2. You should see:
 ```
 ========================================
    NFC TAG DETECTED!
@@ -131,84 +131,84 @@ Card Type: Mifare Classic (4-byte UID)
 ========================================
 ```
 
-3. **Prueba diferentes tags:**
-   - Tarjetas de transporte público
+3. **Test different tags:**
+   - Public transport cards
    - Amiibos
-   - Tags NFC vírgenes
-   - Smartphone con NFC (no siempre funciona)
+   - Blank NFC tags
+   - Smartphone with NFC (doesn't always work)
 
 ---
 
-## 🔄 Volver al Programa Principal
+## 🔄 Return to Main Program
 
-Una vez que confirmes que el PN532 funciona:
+Once you confirm PN532 works:
 
 ```bash
-# Subir de nuevo el programa principal
+# Upload main program again
 ~/.platformio/penv/bin/platformio run -e esp32dev --target upload
 
-# Ver el monitor
+# View monitor
 ~/.platformio/penv/bin/platformio device monitor -e esp32dev
 ```
 
 ---
 
-## 🆘 Problemas Comunes
+## 🆘 Common Problems
 
-### "No encuentro el monitor serial"
+### "Can't find serial monitor"
 ```bash
-# Listar puertos disponibles
+# List available ports
 ls /dev/cu.*
 
-# Debería aparecer algo como: /dev/cu.usbserial-XXXX
+# Should show something like: /dev/cu.usbserial-XXXX
 ```
 
-### "Permission denied al conectar"
+### "Permission denied when connecting"
 ```bash
-# En macOS, dar permisos:
+# On macOS, grant permissions:
 sudo chmod 666 /dev/cu.usbserial-*
 ```
 
-### "El ESP32 no arranca después de conectar PN532"
-- Desconecta GPIO15 (CS del PN532)
-- Arranca el ESP32
-- Vuelve a conectar GPIO15
-- O cambia CS a otro pin (ver punto 6 arriba)
+### "ESP32 won't boot after connecting PN532"
+- Disconnect GPIO15 (PN532 CS)
+- Boot ESP32
+- Reconnect GPIO15
+- Or change CS to another pin (see point 6 above)
 
-### "Detecta el tag pero luego no responde"
-- Cables demasiado largos
-- Interferencia de otros dispositivos
-- Alimentación insuficiente (probar con fuente externa)
-
----
-
-## 📊 Lecturas de Voltaje Normales
-
-Con multímetro en el PN532:
-- **VCC a GND**: 3.3V (±0.1V)
-- **MISO en reposo**: 3.3V (pull-up activo)
-- **MOSI en reposo**: Variable
-- **SCK en reposo**: HIGH (~3.3V) o LOW (0V)
-- **CS en reposo**: HIGH (3.3V) - muy importante
+### "Detects tag but then doesn't respond"
+- Cables too long
+- Interference from other devices
+- Insufficient power (try external power supply)
 
 ---
 
-## 📝 Información del Sistema
+## 📊 Normal Voltage Readings
 
-**Pines ESP32 usados:**
+With multimeter on PN532:
+- **VCC to GND**: 3.3V (±0.1V)
+- **MISO at rest**: 3.3V (active pull-up)
+- **MOSI at rest**: Variable
+- **SCK at rest**: HIGH (~3.3V) or LOW (0V)
+- **CS at rest**: HIGH (3.3V) - very important
+
+---
+
+## 📝 System Information
+
+**ESP32 pins used:**
 - GPIO14 (SCK) - Software SPI Clock
 - GPIO12 (MISO) - Master In Slave Out
 - GPIO27 (MOSI) - Master Out Slave In  
 - GPIO15 (CS) - Chip Select
 
-**Librería:** Adafruit PN532 v1.3.4
+**Library:** Adafruit PN532 v1.3.4
 
-**Protocolo:** Software SPI (bit-banging)
+**Protocol:** Software SPI (bit-banging)
 
 ---
 
-## 🔗 Recursos Adicionales
+## 🔗 Additional Resources
 
-- [Datasheet PN532](https://www.nxp.com/docs/en/nxp/data-sheets/PN532_C1.pdf)
+- [PN532 Datasheet](https://www.nxp.com/docs/en/nxp/data-sheets/PN532_C1.pdf)
 - [Adafruit PN532 Guide](https://learn.adafruit.com/adafruit-pn532-rfid-nfc)
 - [ESP32 Pinout](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)

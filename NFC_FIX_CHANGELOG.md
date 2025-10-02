@@ -1,70 +1,70 @@
-# 🔧 Correcciones Aplicadas al Sistema NFC
+# 🔧 NFC System Fixes Applied
 
-## Problema Identificado
+## Problem Identified
 
-El sistema NFC no estaba detectando correctamente los tags después de la primera detección debido a un error en la lógica de debounce.
+The NFC system was not detecting tags correctly after the first detection due to an error in the debounce logic.
 
-## Cambios Realizados
+## Changes Made
 
-### 1. **Corrección en `nfc_reader.h`**
-- **Agregado**: Variable `_lastTagTime` para rastrear correctamente cuándo se detectó un tag por última vez
-- **Antes**: Solo se usaba `_lastReadTime` (tiempo de la última lectura del sensor)
-- **Ahora**: Se usa `_lastTagTime` (tiempo de la última detección de tag)
+### 1. **Fix in `nfc_reader.h`**
+- **Added**: Variable `_lastTagTime` to correctly track when a tag was last detected
+- **Before**: Only `_lastReadTime` was used (time of last sensor read)
+- **Now**: Uses `_lastTagTime` (time of last tag detection)
 
-### 2. **Corrección en `nfc_reader.cpp`**
-- **Inicialización**: Se inicializa `_lastTagTime` en el constructor
-- **Lógica de detección**: Se actualiza `_lastTagTime` cuando se detecta un tag
-- **Debounce mejorado**: Ahora compara correctamente el tiempo desde la última detección de tag
+### 2. **Fix in `nfc_reader.cpp`**
+- **Initialization**: Initializes `_lastTagTime` in constructor
+- **Detection logic**: Updates `_lastTagTime` when a tag is detected
+- **Improved debounce**: Now correctly compares time since last tag detection
 
-### 3. **Mejora en `main.cpp`**
-- **Lógica más clara**: Separada en variables booleanas para mejor legibilidad
-- **Mensajes mejorados**: Ahora muestra símbolos (⚠, ♪, →, ✓, ✗) para mejor visualización
-- **Flujo optimizado**: 
-  - Mismo tag + tiempo corto + reproduciendo = PAUSA
-  - Mismo tag + tiempo corto + pausado = RESUME
-  - Tag diferente o tiempo largo = REPRODUCIR NUEVA CANCIÓN
+### 3. **Improvement in `main.cpp`**
+- **Clearer logic**: Separated into boolean variables for better readability
+- **Improved messages**: Now displays symbols (⚠, ♪, →, ✓, ✗) for better visualization
+- **Optimized flow**: 
+  - Same tag + short time + playing = PAUSE
+  - Same tag + short time + paused = RESUME
+  - Different tag or long time = PLAY NEW SONG
 
-## Comportamiento Correcto Esperado
+## Expected Correct Behavior
 
-### **Escenario 1: Primera detección de un tag**
+### **Scenario 1: First detection of a tag**
 ```
 --- NFC Tag Detected ---
 UID: 042FDDA07A2681
-♪ Linked song: cancion1.mp3
+♪ Linked song: song1.mp3
 → Action: Playing song
 ✓ Playback started successfully
 ------------------------
 ```
 
-### **Escenario 2: Mismo tag mientras reproduce (dentro de 1.5s)**
+### **Scenario 2: Same tag while playing (within 1.5s)**
 ```
 --- NFC Tag Detected ---
 UID: 042FDDA07A2681
-♪ Linked song: cancion1.mp3
+♪ Linked song: song1.mp3
 → Action: Pausing playback
 ------------------------
 ```
 
-### **Escenario 3: Mismo tag después de pausar**
+### **Scenario 3: Same tag after pausing**
 ```
 --- NFC Tag Detected ---
 UID: 042FDDA07A2681
-♪ Linked song: cancion1.mp3
+♪ Linked song: song1.mp3
 → Action: Resuming playback
 ------------------------
 ```
 
-### **Escenario 4: Tag diferente**
+### **Scenario 4: Different tag**
 ```
 --- NFC Tag Detected ---
 UID: 0A1B2C3D4E5F60
-♪ Linked song: cancion2.mp3
+♪ Linked song: song2.mp3
 → Action: Playing song
 ✓ Playback started successfully
 ------------------------
 ```
 
-### **Escenario 5: Tag no vinculado**
+### **Scenario 5: Unlinked tag**
 ```
 --- NFC Tag Detected ---
 UID: AABBCCDDEEFF00
@@ -73,36 +73,36 @@ UID: AABBCCDDEEFF00
 ------------------------
 ```
 
-## Cómo Probar
+## How to Test
 
-### **Test 1: Detección Básica**
-1. Acerca un tag NFC vinculado
-2. Deberías ver el mensaje de detección en el serial
-3. Si tiene canción vinculada, debería intentar reproducir
+### **Test 1: Basic Detection**
+1. Place a linked NFC tag near reader
+2. You should see detection message in serial
+3. If it has a linked song, it should try to play
 
-### **Test 2: Pausa/Resume**
-1. Con música reproduciéndose, acerca el mismo tag
-2. Debería pausar
-3. Vuelve a acercar el mismo tag
-4. Debería resumir
+### **Test 2: Pause/Resume**
+1. With music playing, place the same tag
+2. Should pause
+3. Place the same tag again
+4. Should resume
 
-### **Test 3: Cambio de Canción**
-1. Con música reproduciéndose
-2. Acerca un tag DIFERENTE (con otra canción vinculada)
-3. Debería cambiar a la nueva canción
+### **Test 3: Song Change**
+1. With music playing
+2. Place a DIFFERENT tag (with another linked song)
+3. Should switch to new song
 
-### **Test 4: Sin Vinculación**
-1. Acerca un tag que NO esté vinculado
-2. Debería mostrar mensaje de advertencia
-3. NO debería reproducir nada
+### **Test 4: No Link**
+1. Place an unlinked tag
+2. Should show warning message
+3. Should NOT play anything
 
-## Verificación por Serial Monitor
+## Serial Monitor Verification
 
 ```bash
 ~/.platformio/penv/bin/platformio device monitor -e esp32dev
 ```
 
-Presiona RESET en el ESP32 y deberías ver:
+Press RESET on ESP32 and you should see:
 ```
 =================================
     MusicBox Initializing
@@ -142,59 +142,59 @@ Open browser: http://192.168.4.1
 Waiting for NFC tags...
 ```
 
-## Próximos Pasos
+## Next Steps
 
-1. **Preparar SD Card**:
-   - Formatear como FAT32
-   - Crear carpeta `/music/`
-   - Copiar archivos MP3
+1. **Prepare SD Card**:
+   - Format as FAT32
+   - Create `/music/` folder
+   - Copy MP3 files
 
-2. **Conectar al WiFi**:
-   - Red: MusicBox
-   - Contraseña: musicbox123
+2. **Connect to WiFi**:
+   - Network: MusicBox
+   - Password: musicbox123
 
-3. **Acceder a la Web**:
-   - Abrir: http://192.168.4.1
-   - Subir canciones
-   - Vincular tags NFC
+3. **Access Web Interface**:
+   - Open: http://192.168.4.1
+   - Upload songs
+   - Link NFC tags
 
-4. **Probar**:
-   - Acercar tags y verificar comportamiento
-   - Revisar mensajes en serial monitor
+4. **Test**:
+   - Place tags and verify behavior
+   - Check messages in serial monitor
 
-## Parámetros de Configuración
+## Configuration Parameters
 
-En `include/config.h`:
+In `include/config.h`:
 ```cpp
-#define NFC_POLL_INTERVAL 100    // ms entre lecturas (100ms = 10 lecturas/seg)
-#define NFC_DEBOUNCE_TIME 1500   // ms para debounce (1.5 segundos)
+#define NFC_POLL_INTERVAL 100    // ms between reads (100ms = 10 reads/sec)
+#define NFC_DEBOUNCE_TIME 1500   // ms for debounce (1.5 seconds)
 ```
 
-**Ajustar si es necesario**:
-- `NFC_POLL_INTERVAL` menor = más responsivo pero más CPU
-- `NFC_DEBOUNCE_TIME` menor = más sensible a re-detección rápida
-- `NFC_DEBOUNCE_TIME` mayor = menos sensible a tags repetidos
+**Adjust if needed**:
+- Lower `NFC_POLL_INTERVAL` = more responsive but more CPU usage
+- Lower `NFC_DEBOUNCE_TIME` = more sensitive to quick re-detection
+- Higher `NFC_DEBOUNCE_TIME` = less sensitive to repeated tags
 
-## Notas Técnicas
+## Technical Notes
 
-### Diferencia entre `_lastReadTime` y `_lastTagTime`
+### Difference between `_lastReadTime` and `_lastTagTime`
 
-- **`_lastReadTime`**: Tiempo de la última lectura del sensor (se actualiza cada 100ms)
-- **`_lastTagTime`**: Tiempo de la última detección exitosa de un tag (solo cuando hay tag)
+- **`_lastReadTime`**: Time of last sensor read (updates every 100ms)
+- **`_lastTagTime`**: Time of last successful tag detection (only when tag present)
 
-Esta separación es crucial para el debounce correcto.
+This separation is crucial for correct debounce behavior.
 
-### Flujo de Detección
+### Detection Flow
 
 ```
 ┌─────────────────────┐
 │  NFC Reader Loop    │
-│  (cada 100ms)       │
+│  (every 100ms)      │
 └──────────┬──────────┘
            │
            ▼
     ┌──────────────┐
-    │ ¿Tag present?│
+    │ Tag present? │
     └──────┬───────┘
            │
       ┌────┴────┐
@@ -225,23 +225,23 @@ Esta separación es crucial para el debounce correcto.
 
 ## Troubleshooting
 
-### Si no detecta tags:
-- Verificar conexiones (ver NFC_DIAGNOSTIC_GUIDE.md)
-- Revisar que el LED del PN532 esté encendido
-- Probar con el programa de test: `./test_nfc.sh`
+### If tags are not detected:
+- Verify connections (see NFC_DIAGNOSTIC_GUIDE.md)
+- Check that PN532 LED is lit
+- Test with diagnostic program: `./test_nfc.sh`
 
-### Si detecta pero no reproduce:
-- Verificar que la tarjeta SD esté insertada
-- Verificar que exista la carpeta `/music/`
-- Verificar que el archivo MP3 exista
-- Revisar mensajes de error en serial
+### If detected but doesn't play:
+- Verify SD card is inserted
+- Verify `/music/` folder exists
+- Verify MP3 file exists
+- Check error messages in serial
 
-### Si pausa/resume no funciona:
-- Ajustar `NFC_DEBOUNCE_TIME` en config.h
-- Verificar que estás usando el mismo tag
-- Verificar timing (debe ser < 1.5s entre detecciones)
+### If pause/resume doesn't work:
+- Adjust `NFC_DEBOUNCE_TIME` in config.h
+- Verify you're using the same tag
+- Verify timing (must be < 1.5s between detections)
 
 ---
 
-**Firmware actualizado**: ✅ Subido correctamente
-**Estado**: Listo para probar
+**Firmware updated**: ✅ Uploaded successfully
+**Status**: Ready to test

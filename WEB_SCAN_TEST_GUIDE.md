@@ -1,36 +1,36 @@
-# 🔍 Guía Rápida: Probar Escaneo de Tags NFC desde la Web
+# 🔍 Quick Guide: Testing NFC Tag Scanning from Web Interface
 
-## ✅ Mejoras Aplicadas
+## ✅ Improvements Applied
 
-### 1. **Endpoint `/api/tags/scan` Mejorado**
-- Ahora devuelve el último UID detectado sin importar si es "nuevo"
-- Incluye flag `detected` para saber si hay un UID disponible
-- Añadido logging en serial para debug: `[WEB] Returning scanned UID: XXXXXXXX`
+### 1. **Enhanced `/api/tags/scan` Endpoint**
+- Now returns the last detected UID regardless of whether it's "new"
+- Includes `detected` flag to know if a UID is available
+- Added serial logging for debugging: `[WEB] Returning scanned UID: XXXXXXXX`
 
-### 2. **Interfaz Web Mejorada**
-- **Indicador visual de estado** en el modal
-- **Console logging** para debugging en el navegador
-- **Feedback en tiempo real**: 
-  - 🔍 Escaneando...
-  - ✅ Tag detectado: [UID]
-  - ⚠️ Error al escanear
+### 2. **Improved Web Interface**
+- **Visual status indicator** in modal
+- **Console logging** for browser debugging
+- **Real-time feedback**: 
+  - 🔍 Scanning...
+  - ✅ Tag detected: [UID]
+  - ⚠️ Error scanning
 
-### 3. **Mejor Persistencia del UID**
-- El último UID se mantiene incluso después de retirar el tag
-- Método `clearLastUID()` para limpiar manualmente si es necesario
+### 3. **Better UID Persistence**
+- Last UID is retained even after removing the tag
+- `clearLastUID()` method to manually clear if needed
 
 ---
 
-## 🧪 Cómo Probar (Paso a Paso)
+## 🧪 How to Test (Step by Step)
 
-### **Paso 1: Verificar que el ESP32 esté funcionando**
+### **Step 1: Verify ESP32 is Running**
 
-Abre el serial monitor:
+Open serial monitor:
 ```bash
 ~/.platformio/penv/bin/platformio device monitor -e esp32dev
 ```
 
-Presiona RESET y deberías ver:
+Press RESET and you should see:
 ```
 =================================
     MusicBox Ready!
@@ -39,270 +39,270 @@ Connect to WiFi: MusicBox
 Open browser: http://192.168.4.1
 ```
 
-### **Paso 2: Detectar un Tag Primero (Importante)**
+### **Step 2: Detect a Tag First (Important)**
 
-**Antes de abrir la web**, acerca un tag NFC al lector. Deberías ver en el serial:
+**Before opening the web interface**, place an NFC tag near the reader. You should see in serial:
 ```
 NFC Tag detected: 042FDDA07A2681
 ⚠ No song linked to this tag
 → Use the web interface to link a song
 ```
 
-Esto confirma que:
-- ✅ El PN532 funciona
-- ✅ El tag fue detectado
-- ✅ El UID está guardado en memoria
+This confirms:
+- ✅ PN532 is working
+- ✅ Tag was detected
+- ✅ UID is stored in memory
 
-### **Paso 3: Conectar a la Web**
+### **Step 3: Connect to Web**
 
-1. **Conectar WiFi**: 
-   - Red: `MusicBox`
+1. **Connect WiFi**: 
+   - Network: `MusicBox`
    - Password: `musicbox123`
 
-2. **Abrir navegador**: `http://192.168.4.1`
+2. **Open browser**: `http://192.168.4.1`
 
-3. **Abrir consola del navegador**:
-   - Chrome/Edge: `F12` o `Cmd+Option+I`
+3. **Open browser console**:
+   - Chrome/Edge: `F12` or `Cmd+Option+I`
    - Safari: `Cmd+Option+C`
-   - Firefox: `F12` o `Cmd+Option+K`
+   - Firefox: `F12` or `Cmd+Option+K`
 
-### **Paso 4: Vincular el Tag**
+### **Step 4: Link the Tag**
 
-1. Click en **"Vincular Nuevo Tag"**
+1. Click on **"Link New Tag"**
 
-2. **Observa la consola del navegador**, deberías ver:
+2. **Watch the browser console**, you should see:
 ```javascript
 Started NFC scanning...
 Scan response: {uid: "042FDDA07A2681", detected: true}
 Tag detected: 042FDDA07A2681
 ```
 
-3. **Observa el serial del ESP32**, deberías ver:
+3. **Watch ESP32 serial**, you should see:
 ```
 [WEB] Returning scanned UID: 042FDDA07A2681
 ```
 
-4. **En la interfaz web** deberías ver:
-   - El campo de texto con el UID: `042FDDA07A2681`
-   - El mensaje: `✅ Tag detectado: 042FDDA07A2681`
+4. **In the web interface** you should see:
+   - Text field with UID: `042FDDA07A2681`
+   - Message: `✅ Tag detected: 042FDDA07A2681`
 
 ---
 
 ## 🐛 Troubleshooting
 
-### **Problema 1: No aparece el UID en el campo**
+### **Problem 1: UID doesn't appear in field**
 
-**Revisar en la consola del navegador:**
+**Check browser console:**
 
 ```javascript
-// Si ves esto:
+// If you see this:
 Scan response: {uid: null, detected: false}
 ```
 
-**Solución**: El tag no ha sido detectado aún.
-- Acerca el tag al lector NFC
-- Espera a ver el mensaje en el serial: `NFC Tag detected: ...`
-- El escaneo web debería capturarlo en el siguiente poll (0.5s)
+**Solution**: Tag hasn't been detected yet.
+- Place tag near NFC reader
+- Wait to see message in serial: `NFC Tag detected: ...`
+- Web scan should capture it on next poll (0.5s)
 
 ---
 
-### **Problema 2: El UID aparece vacío después de retirar el tag**
+### **Problem 2: UID appears empty after removing tag**
 
-**Esto NO debería pasar** con la nueva versión.
+**This should NOT happen** with the new version.
 
-**Verificar en serial**:
+**Check serial**:
 ```
-NFC Tag detected: 042FDDA07A2681    ← UID guardado
-NFC Tag removed                      ← Tag retirado
-[WEB] Returning scanned UID: 042FDDA07A2681  ← UID sigue disponible
+NFC Tag detected: 042FDDA07A2681    ← UID stored
+NFC Tag removed                      ← Tag removed
+[WEB] Returning scanned UID: 042FDDA07A2681  ← UID still available
 ```
 
-Si el UID desaparece, hay un problema con la persistencia.
+If UID disappears, there's a persistence problem.
 
 ---
 
-### **Problema 3: Error 404 en `/api/tags/scan`**
+### **Problem 3: 404 error on `/api/tags/scan`**
 
-**En la consola del navegador**:
+**In browser console**:
 ```javascript
 GET http://192.168.4.1/api/tags/scan 404 (Not Found)
 ```
 
-**Solución**: El servidor web no está funcionando correctamente.
-- Verificar en serial que diga: `✓ Web Server ready`
-- Reiniciar el ESP32
+**Solution**: Web server is not working correctly.
+- Check serial shows: `✓ Web Server ready`
+- Reset ESP32
 
 ---
 
-### **Problema 4: El popup no se abre**
+### **Problem 4: Modal doesn't open**
 
-**Verificar en consola del navegador**:
+**Check browser console**:
 ```javascript
 Uncaught ReferenceError: openLinkModal is not defined
 ```
 
-**Solución**: Problema con el JavaScript. Refrescar la página (`Cmd+R` o `F5`).
+**Solution**: JavaScript issue. Refresh page (`Cmd+R` or `F5`).
 
 ---
 
-## 📊 Flujo Completo Esperado
+## 📊 Complete Expected Flow
 
-### **Escenario de Éxito:**
+### **Success Scenario:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ 1. Usuario acerca tag NFC al lector                        │
+│ 1. User places NFC tag near reader                         │
 └──────────────────┬──────────────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 2. ESP32 detecta tag                                        │
+│ 2. ESP32 detects tag                                        │
 │    Serial: "NFC Tag detected: 042FDDA07A2681"              │
-│    Memoria: _lastUID = "042FDDA07A2681"                    │
+│    Memory: _lastUID = "042FDDA07A2681"                     │
 └──────────────────┬──────────────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 3. Usuario abre web y click en "Vincular Nuevo Tag"        │
+│ 3. User opens web and clicks "Link New Tag"                │
 └──────────────────┬──────────────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 4. JavaScript inicia polling cada 500ms                     │
+│ 4. JavaScript starts polling every 500ms                    │
 │    Fetch: GET /api/tags/scan                                │
 └──────────────────┬──────────────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 5. ESP32 responde con último UID                            │
+│ 5. ESP32 responds with last UID                             │
 │    Response: {uid: "042FDDA07A2681", detected: true}        │
 │    Serial: "[WEB] Returning scanned UID: 042FDDA07A2681"   │
 └──────────────────┬──────────────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 6. JavaScript muestra UID en el campo                       │
-│    Campo: "042FDDA07A2681"                                  │
-│    Estado: "✅ Tag detectado: 042FDDA07A2681"              │
+│ 6. JavaScript displays UID in field                         │
+│    Field: "042FDDA07A2681"                                  │
+│    Status: "✅ Tag detected: 042FDDA07A2681"               │
 └──────────────────┬──────────────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 7. Usuario selecciona canción y hace click en "Vincular"   │
+│ 7. User selects song and clicks "Link"                     │
 └──────────────────┬──────────────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────────┐
 │ 8. POST /api/tags/link                                      │
-│    Body: {uid: "042FDDA07A2681", song: "cancion.mp3"}      │
+│    Body: {uid: "042FDDA07A2681", song: "song.mp3"}         │
 └──────────────────┬──────────────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 9. ESP32 guarda vinculación en /nfc_links.json             │
-│    ✓ Tag vinculado correctamente                           │
+│ 9. ESP32 saves link in /nfc_links.json                     │
+│    ✓ Tag linked successfully                                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🎯 Puntos Críticos de Verificación
+## 🎯 Critical Verification Points
 
-### **✅ Checkpoint 1: PN532 funciona**
+### **✅ Checkpoint 1: PN532 is working**
 ```bash
-# En serial monitor, acerca tag:
+# In serial monitor, place tag:
 NFC Tag detected: XXXXXXXX
 ```
 
-### **✅ Checkpoint 2: Web Server responde**
+### **✅ Checkpoint 2: Web Server responds**
 ```bash
-# En navegador, abrir: http://192.168.4.1
-# Debería cargar la página
+# In browser, open: http://192.168.4.1
+# Should load the page
 ```
 
-### **✅ Checkpoint 3: Endpoint `/api/tags/scan` funciona**
+### **✅ Checkpoint 3: `/api/tags/scan` endpoint works**
 ```bash
-# En navegador, ir directamente a:
+# In browser, go directly to:
 http://192.168.4.1/api/tags/scan
 
-# Debería mostrar JSON:
+# Should show JSON:
 {"uid":"042FDDA07A2681","detected":true}
 ```
 
-### **✅ Checkpoint 4: JavaScript captura el UID**
+### **✅ Checkpoint 4: JavaScript captures UID**
 ```javascript
-// En consola del navegador (F12):
+// In browser console (F12):
 Scan response: {uid: "042FDDA07A2681", detected: true}
 Tag detected: 042FDDA07A2681
 ```
 
-### **✅ Checkpoint 5: UI se actualiza**
-- Campo de texto muestra el UID
-- Mensaje de estado: ✅ Tag detectado
+### **✅ Checkpoint 5: UI updates**
+- Text field shows UID
+- Status message: ✅ Tag detected
 
 ---
 
-## 🔧 Debugging Avanzado
+## 🔧 Advanced Debugging
 
-### **Ver todas las requests en el navegador:**
+### **View all requests in browser:**
 
-En la consola (F12), pestaña **Network**:
-- Filtrar por `scan`
-- Deberías ver requests cada 500ms
-- Click en cualquiera para ver la respuesta
+In console (F12), **Network** tab:
+- Filter by `scan`
+- You should see requests every 500ms
+- Click any to see response
 
-### **Ver logs del ESP32 en tiempo real:**
+### **View ESP32 logs in real-time:**
 
 ```bash
-# Terminal 1: Monitor serial
+# Terminal 1: Serial monitor
 ~/.platformio/penv/bin/platformio device monitor -e esp32dev
 
-# Mantén abierto mientras usas la web
-# Verás cada request que llegue:
+# Keep open while using web
+# You'll see each incoming request:
 [WEB] Returning scanned UID: 042FDDA07A2681
 ```
 
-### **Test manual del endpoint:**
+### **Manual endpoint test:**
 
 ```bash
-# Desde terminal (con el ESP32 conectado a WiFi MusicBox):
+# From terminal (with ESP32 connected to MusicBox WiFi):
 curl http://192.168.4.1/api/tags/scan
 
-# Debería devolver:
+# Should return:
 {"uid":"042FDDA07A2681","detected":true}
 ```
 
 ---
 
-## 📝 Notas Importantes
+## 📝 Important Notes
 
-1. **El UID se mantiene** incluso después de retirar el tag
-2. **El polling es cada 500ms** (2 requests por segundo)
-3. **El último tag detectado** es el que aparecerá, no solo tags "nuevos"
-4. **Los mensajes de consola** son cruciales para debugging
+1. **UID persists** even after removing tag
+2. **Polling is every 500ms** (2 requests per second)
+3. **Last detected tag** will appear, not only "new" tags
+4. **Console messages** are crucial for debugging
 
 ---
 
-## 🆘 Si Nada Funciona
+## 🆘 If Nothing Works
 
-### **Reset completo:**
+### **Complete reset:**
 
-1. **Cerrar el navegador** completamente
-2. **Presionar RESET** en el ESP32
-3. **Esperar 10 segundos**
-4. **Acercar un tag** al lector (verificar en serial)
-5. **Reconectar WiFi** MusicBox
-6. **Abrir navegador** con consola (F12)
-7. **Ir a** http://192.168.4.1
-8. **Click en** "Vincular Nuevo Tag"
-9. **Observar consola** y serial monitor
+1. **Close browser** completely
+2. **Press RESET** on ESP32
+3. **Wait 10 seconds**
+4. **Place a tag** near reader (verify in serial)
+5. **Reconnect WiFi** to MusicBox
+6. **Open browser** with console (F12)
+7. **Go to** http://192.168.4.1
+8. **Click** "Link New Tag"
+9. **Watch console** and serial monitor
 
-Si después de esto no funciona, dame el output completo de:
+If it still doesn't work after this, provide complete output from:
 - Serial monitor
-- Consola del navegador
-- Pestaña Network del navegador
+- Browser console
+- Browser Network tab
 
 ---
 
-**Firmware actualizado**: ✅ Subido correctamente
-**Mejoras activas**: ✅ Escaneo mejorado, mejor debugging, feedback visual
+**Firmware updated**: ✅ Uploaded successfully
+**Active improvements**: ✅ Enhanced scanning, better debugging, visual feedback
