@@ -10,7 +10,11 @@
 String lastTagUID = "";
 unsigned long lastTagTime = 0;
 
+// FreeRTOS task handles
+TaskHandle_t audioTaskHandle = NULL;
+
 void onTagDetected(String uid);
+void audioTask(void *parameter);
 
 void setup() {
     // Initialize serial
@@ -81,20 +85,46 @@ void setup() {
     Serial.println("Connect to WiFi: " + String(WIFI_SSID));
     Serial.println("Open browser: http://" + IP.toString());
     Serial.println("\nWaiting for NFC tags...\n");
+    
+    // Create dedicated audio task on Core 1 with HIGH priority
+    xTaskCreatePinnedToCore(
+        audioTask,           // Task function
+        "AudioTask",         // Task name
+        8192,                // Stack size (8KB)
+        NULL,                // Parameters
+        2,                   // Priority (HIGH - 2)
+        &audioTaskHandle,    // Task handle
+        1                    // Core 1 (dedicated to audio)
+    );
+    
+    Serial.println("✓ Audio task created on Core 1 (dedicated)");
+    Serial.println("✓ Main task running on Core 0");
 }
 
 void loop() {
+    // Main loop runs on Core 0 - handles NFC and Web only
+    
     // Update NFC reader
     nfcReader.loop();
-    
-    // Update audio player
-    audioPlayer.loop();
     
     // Web server is handled by async callbacks
     webServer.loop();
     
-    // Small delay to prevent watchdog issues
+    // Small delay for NFC/Web tasks (audio runs independently on Core 1)
     delay(10);
+}
+
+// Dedicated audio task running on Core 1
+void audioTask(void *parameter) {
+    Serial.println("[Audio Task] Started on Core 1");
+    
+    while (true) {
+        // Process audio continuously without interruption
+        audioPlayer.loop();
+        
+        // Minimal delay to prevent watchdog (1ms)
+        vTaskDelay(1 / portTICK_PERIOD_MS);
+    }
 }
 
 void onTagDetected(String uid) {

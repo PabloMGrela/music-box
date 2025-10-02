@@ -44,13 +44,13 @@
 // AUDIO CONFIGURATION
 // ============================================================================
 #define AUDIO_SAMPLE_RATE 44100
-#define AUDIO_BUFFER_SIZE 2048
+#define AUDIO_BUFFER_SIZE 8192  // Increased from 2048 to reduce audio stuttering
 #define DEFAULT_VOLUME 0.8f  // 0.0 to 1.0
 
 // ============================================================================
 // NFC CONFIGURATION
 // ============================================================================
-#define NFC_POLL_INTERVAL 100    // ms between NFC polls
+#define NFC_POLL_INTERVAL 500    // ms between NFC polls (increased to minimize CPU interference with audio)
 #define NFC_DEBOUNCE_TIME 1500   // ms to debounce same tag
 #define NFC_UID_MAX_LENGTH 7     // Maximum UID length
 

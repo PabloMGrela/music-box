@@ -18,10 +18,12 @@ AudioPlayer::~AudioPlayer() {
 }
 
 bool AudioPlayer::begin() {
-    // Initialize I2S output
+    // Initialize I2S output with optimized settings
     _out = new AudioOutputI2S();
     _out->SetPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     _out->SetGain(_volume);
+    // Set output mode for better performance (internal DAC mode)
+    _out->SetOutputModeMono(false);  // Stereo output
     
     Serial.println("Audio Player initialized");
     return true;
@@ -52,9 +54,9 @@ bool AudioPlayer::play(const String& filepath) {
         return false;
     }
     
-    // Create buffer (4KB buffer for smooth playback - reduced from 8KB to save memory)
-    _buff = new AudioFileSourceBuffer(_file, 4096);
-    Serial.println("✓ Created 4KB audio buffer");
+    // Create buffer (32KB for smooth playback on dedicated core)
+    _buff = new AudioFileSourceBuffer(_file, 32768);
+    Serial.println("✓ Created 32KB audio buffer");
     
     // Create ID3 tag filter to skip metadata
     _id3 = new AudioFileSourceID3(_buff);
