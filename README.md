@@ -1,53 +1,53 @@
-# MusicBox - Reproductor de Música NFC para Niños
+# ESP32 MusicBox 🎵
 
-Sistema de reproducción de música basado en ESP32 que utiliza tags NFC para controlar la reproducción. Diseñado para niños, sin pantallas.
+An NFC-controlled music player for children based on ESP32. Screen-free design for simple, intuitive operation.
 
-## 🎯 Características
+## 🎯 Features
 
-- **Reproducción por NFC**: Acerca un tag NFC para reproducir la canción asociada
-- **Control Simple**: 
-  - Acercar tag → reproduce canción
-  - Acercar mismo tag mientras suena → pausa/resume
-  - Acercar tag diferente → cambia a nueva canción
-- **Interfaz Web**: Configura canciones y tags desde cualquier dispositivo
-- **Sin Pantallas**: Diseñado para uso infantil sin necesidad de interacción visual
+- **NFC Playback Control**: Place an NFC tag near the reader to play its associated song
+- **Simple Controls**: 
+  - Place tag → play song
+  - Place same tag while playing → pause/resume
+  - Place different tag → switch to new song
+- **Web Interface**: Configure songs and tags from any device
+- **Screen-Free**: Designed for children without visual interaction required
 
-## 🔧 Hardware Requerido
+## 🔧 Hardware Requirements
 
-### Componentes Principales
-- **ESP32 DevKit** (WROOM)
-- **MAX98357A** (Amplificador I2S)
-- **PN532** (Lector NFC)
-- **MicroSD Card Module** (almacenamiento de música)
-- **Altavoz** (conectado al MAX98357A)
-- **Tags NFC** (Mifare Classic, NTAG, etc.)
+### Main Components
+- **ESP32 DevKit** (WROOM or similar)
+- **MAX98357A** (I2S Audio Amplifier)
+- **PN532** (NFC Reader Module)
+- **MicroSD Card Module** (for music storage)
+- **Speaker** (4-8Ω, connected to MAX98357A)
+- **NFC Tags** (Mifare Classic, NTAG213/215/216, etc.)
 
-### Conexiones
+### Wiring Connections
 
-#### SD Card (VSPI)
-| Señal | Pin ESP32 |
-|-------|-----------|
-| CS    | GPIO 13   |
-| SCK   | GPIO 18   |
-| MISO  | GPIO 19   |
-| MOSI  | GPIO 23   |
+#### SD Card (Hardware VSPI)
+| Signal | ESP32 Pin |
+|--------|-----------|
+| CS     | GPIO 13   |
+| SCK    | GPIO 18   |
+| MISO   | GPIO 19   |
+| MOSI   | GPIO 23   |
 
-#### Audio I2S (MAX98357A)
-| Señal | Pin ESP32 |
-|-------|-----------|
-| BCLK  | GPIO 26   |
-| LRCK  | GPIO 25   |
-| DATA  | GPIO 22   |
+#### I2S Audio (MAX98357A)
+| Signal | ESP32 Pin |
+|--------|-----------|
+| BCLK   | GPIO 26   |
+| LRCK   | GPIO 25   |
+| DATA   | GPIO 22   |
 
 #### NFC PN532 (Software SPI)
-| Señal | Pin ESP32 |
-|-------|-----------|
-| SCK   | GPIO 14   |
-| MISO  | GPIO 12   |
-| MOSI  | GPIO 27   |
-| CS    | GPIO 15   |
+| Signal | ESP32 Pin |
+|--------|-----------|
+| SCK    | GPIO 14   |
+| MISO   | GPIO 12   |
+| MOSI   | GPIO 27   |
+| CS     | GPIO 15   |
 
-### Esquema de Conexión
+### Wiring Diagram
 ```
                 +------------------- ESP32 DEVKIT -------------------+
                 |                                                    |
@@ -69,203 +69,203 @@ Sistema de reproducción de música basado en ESP32 que utiliza tags NFC para co
                 +--------------------------------------+
 ```
 
-## 📦 Instalación y Configuración
+## 📦 Installation and Setup
 
-### 1. Preparar el Entorno
+### 1. Environment Setup
 
-Necesitas tener instalado:
+You need to have installed:
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [PlatformIO IDE](https://platformio.org/install/ide?install=vscode)
 
-### 2. Clonar y Compilar
+### 2. Clone and Compile
 
 ```bash
-# Abrir el proyecto en VS Code
-# PlatformIO instalará automáticamente todas las dependencias
+# Open the project in VS Code
+# PlatformIO will automatically install all dependencies
 
-# Compilar el proyecto
+# Compile the project
 pio run
 
-# Subir a ESP32 (conectado por USB)
+# Upload to ESP32 (connected via USB)
 pio run --target upload
 
-# Ver monitor serial
+# View serial monitor
 pio device monitor
 ```
 
-### 3. Preparar la Tarjeta SD
+### 3. Prepare the SD Card
 
-1. Formatear la tarjeta SD como **FAT32**
-2. Crear carpeta `/music/` en la raíz
-3. (Opcional) Copiar archivos MP3 iniciales a `/music/`
+1. Format the SD card as **FAT32**
+2. Create folder `/music/` in the root
+3. (Optional) Copy initial MP3 files to `/music/`
 
-### 4. Primera Conexión
+### 4. First Connection
 
-1. **Alimentar el ESP32** (USB o 5V)
-2. **Buscar la red WiFi**: `MusicBox`
-3. **Conectarse** con password: `musicbox123`
-4. **Abrir navegador** en: `http://192.168.4.1`
+1. **Power the ESP32** (USB or 5V)
+2. **Search for WiFi network**: `MusicBox`
+3. **Connect** with password: `musicbox123`
+4. **Open browser** at: `http://192.168.4.1`
 
-## 🌐 Uso de la Interfaz Web
+## 🌐 Using the Web Interface
 
-### Gestión de Canciones
+### Song Management
 
-1. **Subir Canción**: 
-   - Haz clic en el área de subida
-   - Selecciona un archivo MP3
-   - Espera a que termine la carga
+1. **Upload Song**: 
+   - Click on the upload area
+   - Select an MP3 file
+   - Wait for upload to complete
 
-2. **Eliminar Canción**:
-   - Haz clic en "Eliminar" junto a la canción
+2. **Delete Song**:
+   - Click "Delete" next to the song
 
-### Gestión de Tags NFC
+### NFC Tag Management
 
-1. **Vincular Tag**:
-   - Clic en "Vincular Nuevo Tag"
-   - Acerca el tag NFC al lector
-   - El UID se detectará automáticamente
-   - Selecciona la canción a vincular
-   - Clic en "Vincular"
+1. **Link Tag**:
+   - Click "Link New Tag"
+   - Place NFC tag near the reader
+   - UID will be detected automatically
+   - Select the song to link
+   - Click "Link"
 
-2. **Desvincular Tag**:
-   - Clic en "Desvincular" junto al tag
+2. **Unlink Tag**:
+   - Click "Unlink" next to the tag
 
-## 🎵 Uso Diario
+## 🎵 Daily Usage
 
-1. **Reproducir**: Acerca un tag NFC vinculado
-2. **Pausar/Reanudar**: Acerca el mismo tag mientras suena
-3. **Cambiar canción**: Acerca un tag diferente
+1. **Play**: Place a linked NFC tag near the reader
+2. **Pause/Resume**: Place the same tag while playing
+3. **Change song**: Place a different tag
 
-## 📡 API REST
+## 📡 REST API
 
-### Canciones
+### Songs
 
 ```http
-# Listar canciones
+# List songs
 GET /api/songs
 
-# Subir canción
+# Upload song
 POST /api/songs/upload
 Content-Type: multipart/form-data
 
-# Eliminar canción
+# Delete song
 DELETE /api/songs/{filename}
 ```
 
-### Tags NFC
+### NFC Tags
 
 ```http
-# Listar tags vinculados
+# List linked tags
 GET /api/tags
 
-# Vincular tag
+# Link tag
 POST /api/tags/link
 Content-Type: application/json
 {
   "uid": "A1B2C3D4",
-  "song": "cancion.mp3"
+  "song": "song.mp3"
 }
 
-# Desvincular tag
+# Unlink tag
 DELETE /api/tags/{uid}
 
-# Escanear tag (polling)
+# Scan tag (polling)
 GET /api/tags/scan
 ```
 
-### Estado
+### Status
 
 ```http
-# Estado del reproductor
+# Player status
 GET /api/status
 ```
 
-## ⚙️ Configuración Avanzada
+## ⚙️ Advanced Configuration
 
-### Cambiar Credenciales WiFi
+### Change WiFi Credentials
 
-Editar `include/config.h`:
+Edit `include/config.h`:
 ```cpp
-#define WIFI_SSID "MiMusicBox"
-#define WIFI_PASSWORD "mipassword123"
+#define WIFI_SSID "MyMusicBox"
+#define WIFI_PASSWORD "mypassword123"
 ```
 
-### Ajustar Volumen Predeterminado
+### Adjust Default Volume
 
-Editar `include/config.h`:
+Edit `include/config.h`:
 ```cpp
-#define DEFAULT_VOLUME 0.8f  // 0.0 a 1.0
+#define DEFAULT_VOLUME 0.8f  // 0.0 to 1.0
 ```
 
-### Cambiar Tiempos de Detección NFC
+### Change NFC Detection Timings
 
-Editar `include/config.h`:
+Edit `include/config.h`:
 ```cpp
-#define NFC_POLL_INTERVAL 100    // ms entre lecturas
-#define NFC_DEBOUNCE_TIME 1500   // ms para debounce
+#define NFC_POLL_INTERVAL 100    // ms between reads
+#define NFC_DEBOUNCE_TIME 1500   // ms for debounce
 ```
 
-## 🐛 Solución de Problemas
+## 🐛 Troubleshooting
 
-### PN532 no detectado
-- Verifica las conexiones (especialmente MISO con pull-up)
-- Asegura que CS está en HIGH cuando no se usa
-- Comprueba alimentación 3.3V estable
+### PN532 Not Detected
+- Verify connections (especially MISO with pull-up)
+- Ensure CS is HIGH when not in use
+- Check stable 3.3V power supply
 
-### SD Card no monta
-- Verifica formato FAT32
-- Revisa conexiones SPI
-- Prueba con otra tarjeta SD
-- Acorta cables si son muy largos
+### SD Card Won't Mount
+- Verify FAT32 format
+- Check SPI connections
+- Try a different SD card
+- Shorten cables if they're too long
 
-### Audio con clicks o ruido
-- Añade capacitor 100µF cerca del MAX98357A
-- Verifica alimentación 5V estable
-- Separa cables de audio de otros cables
+### Audio with Clicks or Noise
+- Add 100µF capacitor near MAX98357A
+- Verify stable 5V power supply
+- Separate audio cables from other wires
 
-### No arranca después de programar
-- GPIO15 puede interferir en boot
-- Reasigna CS del PN532 a otro pin (ej: GPIO5)
-- Mantén GPIO15 en HIGH durante boot
+### Won't Boot After Programming
+- GPIO15 can interfere with boot
+- Reassign PN532 CS to another pin (e.g., GPIO5)
+- Keep GPIO15 HIGH during boot
 
-## 📝 Persistencia de Datos
+## 📝 Data Persistence
 
-- **Música**: Archivos MP3 en `/music/` de la SD
-- **Enlaces NFC**: Archivo `/nfc_links.json` en la SD
+- **Music**: MP3 files in `/music/` on SD card
+- **NFC Links**: File `/nfc_links.json` on SD card
 
-Ejemplo de `nfc_links.json`:
+Example of `nfc_links.json`:
 ```json
 {
   "links": [
-    {"uid": "A1B2C3D4", "song": "cancion1.mp3"},
-    {"uid": "E5F6A7B8", "song": "cancion2.mp3"}
+    {"uid": "A1B2C3D4", "song": "song1.mp3"},
+    {"uid": "E5F6A7B8", "song": "song2.mp3"}
   ]
 }
 ```
 
-## 🔒 Seguridad
+## 🔒 Security
 
-- Red WiFi protegida por contraseña
-- Sin acceso a Internet (AP local)
-- Archivos solo accesibles desde la red local
+- WiFi network protected by password
+- No Internet access (local AP only)
+- Files only accessible from local network
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto es de código abierto y está disponible bajo la licencia MIT.
+This project is open source and available under the MIT License.
 
-## 🤝 Contribuciones
+## 🤝 Contributing
 
-Las contribuciones son bienvenidas. Por favor:
-1. Haz fork del proyecto
-2. Crea una rama para tu feature
-3. Commit tus cambios
-4. Push a la rama
-5. Abre un Pull Request
+Contributions are welcome. Please:
+1. Fork the project
+2. Create a branch for your feature
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-## 📞 Soporte
+## 📞 Support
 
-Para reportar problemas o sugerencias, abre un issue en el repositorio.
+To report issues or suggestions, open an issue in the repository.
 
 ---
 
-**¡Disfruta de tu MusicBox!** 🎵
+**Enjoy your MusicBox!** 🎵
