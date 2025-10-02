@@ -1,0 +1,25 @@
+# PlatformIO
+.pio/
+.vscode/
+.history/
+
+# Build files
+*.o
+*.elf
+*.bin
+*.hex
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# SD Card test files (optional)
+sdcard/
